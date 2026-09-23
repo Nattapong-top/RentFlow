@@ -1,0 +1,17 @@
+from domain.calculator_metor_unit import CalculatorMeterUnit
+
+def test_calculate_water_meter_success():
+    # เตรียม
+    current_unit = 125
+    previous_unit = 99
+    water_rate = 19
+
+    #ทำ
+    calculator = CalculatorMeterUnit(current_unit, previous_unit, water_rate)
+
+    total_unit, total_price = calculator.calculate()
+
+    #ตรวจ
+    assert total_unit == 26
+    assert total_price == 494
+
