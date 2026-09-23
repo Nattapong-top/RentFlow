@@ -1,4 +1,8 @@
+from pytest import raises
+
+from custom_errors.custom_errors import DecreasingUnitError
 from domain.calculator_metor_unit import CalculatorMeterUnit
+
 
 def test_calculate_water_meter_success():
     # เตรียม
@@ -6,12 +10,22 @@ def test_calculate_water_meter_success():
     previous_unit = 99
     water_rate = 19
 
-    #ทำ
+    # ทำ
     calculator = CalculatorMeterUnit(current_unit, previous_unit, water_rate)
 
     total_unit, total_price = calculator.calculate()
 
-    #ตรวจ
+    # ตรวจ
     assert total_unit == 26
     assert total_price == 494
 
+
+def test_calculate_water_meter_failure():
+    # เตรียม
+    current_unit = 5
+    previous_unit = 99
+    water_rate = 19
+
+    with raises(DecreasingUnitError) as e:
+        CalculatorMeterUnit(current_unit, previous_unit, water_rate).calculate()
+    assert str(e.value) == "หน่วยปัจจุบันไม่ควรน้อยกว่าหน่วยก่อนหน้า"
