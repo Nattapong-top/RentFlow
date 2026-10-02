@@ -14,9 +14,12 @@ def test_calculate_water_meter_success():
     calculator = MeterReadingUnit(current_unit, previous_unit, water_rate)
     total_unit, total_price = calculator.calculate()
 
+    from decimal import Decimal
+
     # ตรวจ
     assert total_unit == 26
-    assert total_price == 494
+    assert total_price == Decimal("494")
+    assert isinstance(total_price, Decimal)
 
 
 def test_calculate_water_meter_failure():

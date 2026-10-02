@@ -4,10 +4,14 @@ from domain.bill import Bill, BillItem
 from domain.billing_period import BillingPeriod
 
 
+from decimal import Decimal
+
+
 def test_create_bill_item_success():
     item = BillItem(name="ค่าเช่าห้อง", amount=2800, description="ค่าเช่าประจำเดือน")
     assert item.name == "ค่าเช่าห้อง"
-    assert item.amount == 2800
+    assert item.amount == Decimal("2800")
+    assert isinstance(item.amount, Decimal)
     assert item.description == "ค่าเช่าประจำเดือน"
 
 
@@ -40,7 +44,8 @@ def test_create_bill_and_add_items():
     bill.add_item(BillItem(name="ค่าเคเบิล", amount=80))
     bill.add_item(BillItem(name="ค่าที่จอดรถ", amount=500))
 
-    assert bill.total == 4330
+    assert bill.total == Decimal("4330")
+    assert isinstance(bill.total, Decimal)
     assert len(bill.items) == 5
 
 

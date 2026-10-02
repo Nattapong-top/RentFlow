@@ -3,6 +3,9 @@ from custom_errors.custom_errors import InvalidPricingError
 from domain.building_pricing import BuildingPricing
 
 
+from decimal import Decimal
+
+
 def test_create_building_pricing_success():
     pricing = BuildingPricing(
         water_rate=19,
@@ -10,10 +13,14 @@ def test_create_building_pricing_success():
         cable_price=60,
         parking_price=500,
     )
-    assert pricing.water_rate == 19
-    assert pricing.electricity_rate == 8
-    assert pricing.cable_price == 60
-    assert pricing.parking_price == 500
+    assert pricing.water_rate == Decimal("19")
+    assert isinstance(pricing.water_rate, Decimal)
+    assert pricing.electricity_rate == Decimal("8")
+    assert isinstance(pricing.electricity_rate, Decimal)
+    assert pricing.cable_price == Decimal("60")
+    assert isinstance(pricing.cable_price, Decimal)
+    assert pricing.parking_price == Decimal("500")
+    assert isinstance(pricing.parking_price, Decimal)
 
 
 def test_create_building_pricing_with_defaults():
