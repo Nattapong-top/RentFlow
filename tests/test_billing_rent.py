@@ -14,8 +14,11 @@ def test_create_billing():
     billing = Billing(rent_rate, cable_tv, water_price, electricity_price)
     grand_total = billing.calculate()
 
+    from decimal import Decimal
+
     # ตรวจ
-    assert grand_total == 4130
+    assert grand_total == Decimal("4130")
+    assert isinstance(grand_total, Decimal)
 
 
 def test_create_billing_fail():

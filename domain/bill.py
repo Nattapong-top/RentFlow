@@ -1,3 +1,4 @@
+from decimal import Decimal
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from custom_errors.custom_errors import DuplicateBillItemError, InvalidBillItemError
@@ -8,7 +9,7 @@ class BillItem(BaseModel):
     model_config = ConfigDict(frozen=True)
 
     name: str
-    amount: float | int
+    amount: Decimal
     description: str = ""
 
     @field_validator("name")
@@ -18,12 +19,16 @@ class BillItem(BaseModel):
             raise InvalidBillItemError("ชื่อรายการต้องไม่ว่างเปล่า")
         return v.strip()
 
-    @field_validator("amount")
+    @field_validator("amount", mode="before")
     @classmethod
-    def validate_amount(cls, v: float | int) -> float | int:
-        if v < 0:
+    def validate_amount(cls, v: object) -> Decimal:
+        try:
+            val = Decimal(str(v))
+        except Exception:
             raise InvalidBillItemError("จำนวนเงินของรายการต้องไม่น้อยกว่าศูนย์")
-        return v
+        if val < 0:
+            raise InvalidBillItemError("จำนวนเงินของรายการต้องไม่น้อยกว่าศูนย์")
+        return val
 
 
 class Bill(BaseModel):
@@ -36,8 +41,8 @@ class Bill(BaseModel):
     items: list[BillItem] = Field(default_factory=list)
 
     @property
-    def total(self) -> float | int:
-        return sum(item.amount for item in self.items)
+    def total(self) -> Decimal:
+        return sum((item.amount for item in self.items), Decimal("0"))
 
     def add_item(self, item: BillItem) -> None:
         if any(existing.name == item.name for existing in self.items):
