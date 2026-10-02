@@ -35,3 +35,7 @@ class InvalidBillItemError(DomainErrors):
 
 class DuplicateBillItemError(DomainErrors):
     pass
+
+
+class MissingRequiredDataError(DomainErrors):
+    pass
