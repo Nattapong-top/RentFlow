@@ -12,6 +12,7 @@ class BillingCalculator:
     def create_water_item(
         self, current_unit: int, previous_unit: int, rate: Decimal | int | float
     ) -> BillItem:
+        rate = rate.value if hasattr(rate, "value") else rate
         rate_dec = Decimal(str(rate))
         unit_calc = MeterReadingUnit(
             current_unit=current_unit,
@@ -25,6 +26,7 @@ class BillingCalculator:
     def create_electricity_item(
         self, current_unit: int, previous_unit: int, rate: Decimal | int | float
     ) -> BillItem:
+        rate = rate.value if hasattr(rate, "value") else rate
         rate_dec = Decimal(str(rate))
         unit_calc = MeterReadingUnit(
             current_unit=current_unit,
