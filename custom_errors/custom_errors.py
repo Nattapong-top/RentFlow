@@ -15,3 +15,7 @@ class InvalidBillingPeriodError(DomainErrors):
 
 class InvalidPricingError(DomainErrors):
     pass
+
+
+class InvalidTenantError(DomainErrors):
+    pass
