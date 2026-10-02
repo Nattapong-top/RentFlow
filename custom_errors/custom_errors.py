@@ -19,3 +19,11 @@ class InvalidPricingError(DomainErrors):
 
 class InvalidTenantError(DomainErrors):
     pass
+
+
+class InvalidRoomError(DomainErrors):
+    pass
+
+
+class InvalidRentRateError(DomainErrors):
+    pass
