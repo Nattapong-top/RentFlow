@@ -7,3 +7,7 @@ class DecreasingUnitError(DomainErrors):
 
 class DoNotNegativeUnitError(DomainErrors):
     pass
+
+
+class InvalidBillingPeriodError(DomainErrors):
+    pass
