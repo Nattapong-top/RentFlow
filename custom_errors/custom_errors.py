@@ -27,3 +27,11 @@ class InvalidRoomError(DomainErrors):
 
 class InvalidRentRateError(DomainErrors):
     pass
+
+
+class InvalidBillItemError(DomainErrors):
+    pass
+
+
+class DuplicateBillItemError(DomainErrors):
+    pass
