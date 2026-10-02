@@ -11,3 +11,7 @@ class DoNotNegativeUnitError(DomainErrors):
 
 class InvalidBillingPeriodError(DomainErrors):
     pass
+
+
+class InvalidPricingError(DomainErrors):
+    pass
