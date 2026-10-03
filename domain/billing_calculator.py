@@ -40,7 +40,7 @@ class BillingCalculator:
     def create_rent_item(self, room: Room) -> BillItem:
         return BillItem(
             name="ค่าเช่าห้อง",
-            amount=room.rent_rate,
+            amount=room.rent_rate.value,
             description="ค่าเช่าห้องประจำเดือน",
         )
 

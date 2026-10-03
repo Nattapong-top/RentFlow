@@ -5,6 +5,7 @@ import pytest
 from custom_errors.custom_errors import InvalidRentRateError, InvalidRoomError
 from domain.occupant_type import OccupantType
 from domain.room import Room
+from domain.units_vo import PricingAmount
 
 
 def test_create_room_success():
@@ -19,8 +20,9 @@ def test_create_room_success():
     )
     assert room.id == "R001"
     assert room.room_number == "101"
-    assert room.rent_rate == Decimal(2800)
-    assert isinstance(room.rent_rate, Decimal)
+    assert room.rent_rate == PricingAmount(value=2800)
+    assert isinstance(room.rent_rate, PricingAmount)
+    assert room.rent_rate.value == Decimal(2800)
     assert room.occupant_type == OccupantType.TENANT
     assert room.tenant_id == "T001"
     assert room.cable_exempt is False
