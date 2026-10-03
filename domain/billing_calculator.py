@@ -10,7 +10,7 @@ class BillingCalculator:
     """Domain service calculating amounts and creating BillItems for each billing component using Decimal."""
 
     def create_water_item(
-        self, current_unit: int, previous_unit: int, rate: Decimal | int | float
+        self, current_unit: int, previous_unit: int, rate: Decimal | float
     ) -> BillItem:
         rate = rate.value if hasattr(rate, "value") else rate
         rate_dec = Decimal(str(rate))
@@ -24,7 +24,7 @@ class BillingCalculator:
         return BillItem(name="ค่าน้ำ", amount=total_price, description=desc)
 
     def create_electricity_item(
-        self, current_unit: int, previous_unit: int, rate: Decimal | int | float
+        self, current_unit: int, previous_unit: int, rate: Decimal | float
     ) -> BillItem:
         rate = rate.value if hasattr(rate, "value") else rate
         rate_dec = Decimal(str(rate))

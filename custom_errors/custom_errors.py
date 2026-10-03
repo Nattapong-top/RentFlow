@@ -5,6 +5,7 @@ class DomainErrors(Exception):
 class DecreasingUnitError(DomainErrors):
     pass
 
+
 class DoNotNegativeUnitError(DomainErrors):
     pass
 

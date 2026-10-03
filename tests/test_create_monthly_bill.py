@@ -1,4 +1,5 @@
 import pytest
+
 from application.create_monthly_bill import CreateMonthlyBill
 from custom_errors.custom_errors import DecreasingUnitError, MissingRequiredDataError
 from domain.bill import Bill
@@ -6,7 +7,6 @@ from domain.billing_period import BillingPeriod
 from domain.building_pricing import BuildingPricing
 from domain.occupant_type import OccupantType
 from domain.room import Room
-from domain.tenant import Tenant
 
 
 @pytest.fixture

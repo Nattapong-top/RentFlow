@@ -17,7 +17,7 @@ def test_create_billing():
     from decimal import Decimal
 
     # ตรวจ
-    assert grand_total == Decimal("4130")
+    assert grand_total == Decimal(4130)
     assert isinstance(grand_total, Decimal)
 
 
@@ -29,4 +29,4 @@ def test_create_billing_fail():
 
     with pytest.raises(ValueError) as e:
         Billing(rent_rate, cable_tv, water_price, electricity_price)
-    assert str(e.value) == 'หน่วยไม่ควรน้อยกว่าศูนย์'
+    assert str(e.value) == "หน่วยไม่ควรน้อยกว่าศูนย์"

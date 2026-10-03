@@ -1,4 +1,5 @@
 import pytest
+
 from custom_errors.custom_errors import DecreasingUnitError
 from domain.billing_calculator import BillingCalculator
 from domain.building_pricing import BuildingPricing

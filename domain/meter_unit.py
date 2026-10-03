@@ -10,7 +10,7 @@ class MeterReadingUnit:
         self,
         current_unit: Unit | int,
         previous_unit: Unit | int,
-        unit_rate: Decimal | int | float,
+        unit_rate: Decimal | float,
     ) -> None:
         self.current_unit = (
             current_unit if isinstance(current_unit, Unit) else Unit(value=current_unit)

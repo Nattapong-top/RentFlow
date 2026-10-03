@@ -18,7 +18,7 @@ def test_calculate_water_meter_success():
 
     # ตรวจ
     assert total_unit == 26
-    assert total_price == Decimal("494")
+    assert total_price == Decimal(494)
     assert isinstance(total_price, Decimal)
 
 
@@ -51,6 +51,7 @@ def test_calculate_meter_with_negative_previous_unit_raises_error():
 
 def test_calculate_meter_with_unit_vo_instances():
     from decimal import Decimal
+
     from domain.units_vo import Unit
 
     current = Unit(value=150)
@@ -61,5 +62,4 @@ def test_calculate_meter_with_unit_vo_instances():
     total_unit, total_price = calculator.calculate()
 
     assert total_unit == 50
-    assert total_price == Decimal("400")
-
+    assert total_price == Decimal(400)

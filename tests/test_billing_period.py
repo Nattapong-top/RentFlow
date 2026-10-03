@@ -1,4 +1,6 @@
 import pytest
+from pydantic import ValidationError
+
 from custom_errors.custom_errors import InvalidBillingPeriodError
 from domain.billing_period import BillingPeriod
 
@@ -31,5 +33,5 @@ def test_create_invalid_billing_period_raises_error(invalid_value: str):
 
 def test_billing_period_is_frozen():
     period = BillingPeriod(value="2026-09")
-    with pytest.raises(Exception):
+    with pytest.raises(ValidationError):
         period.value = "2026-10"

@@ -1,4 +1,5 @@
 import re
+
 from pydantic import BaseModel, ConfigDict, field_validator
 
 from custom_errors.custom_errors import InvalidBillingPeriodError

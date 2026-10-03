@@ -1,4 +1,5 @@
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
+
 from pydantic import BaseModel, ConfigDict, field_validator
 
 from custom_errors.custom_errors import InvalidRentRateError, InvalidRoomError
@@ -35,7 +36,7 @@ class Room(BaseModel):
     def validate_rent_rate(cls, v: object) -> Decimal:
         try:
             val = Decimal(str(v))
-        except Exception:
+        except (InvalidOperation, ValueError, TypeError):
             raise InvalidRentRateError("ค่าเช่าห้องต้องไม่น้อยกว่าศูนย์")
         if val < 0:
             raise InvalidRentRateError("ค่าเช่าห้องต้องไม่น้อยกว่าศูนย์")
