@@ -1,5 +1,6 @@
 from decimal import Decimal, InvalidOperation
 from typing import Any
+
 from pydantic import BaseModel, ConfigDict, field_validator
 
 from custom_errors.custom_errors import DoNotNegativeUnitError, InvalidPricingError

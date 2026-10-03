@@ -1,10 +1,10 @@
+from decimal import Decimal
+
 import pytest
+
 from custom_errors.custom_errors import InvalidRentRateError, InvalidRoomError
 from domain.occupant_type import OccupantType
 from domain.room import Room
-
-
-from decimal import Decimal
 
 
 def test_create_room_success():
@@ -19,7 +19,7 @@ def test_create_room_success():
     )
     assert room.id == "R001"
     assert room.room_number == "101"
-    assert room.rent_rate == Decimal("2800")
+    assert room.rent_rate == Decimal(2800)
     assert isinstance(room.rent_rate, Decimal)
     assert room.occupant_type == OccupantType.TENANT
     assert room.tenant_id == "T001"

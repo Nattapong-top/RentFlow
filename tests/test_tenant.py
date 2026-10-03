@@ -1,4 +1,5 @@
 import pytest
+
 from custom_errors.custom_errors import InvalidTenantError
 from domain.tenant import Tenant
 

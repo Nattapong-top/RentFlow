@@ -1,8 +1,8 @@
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 
-from pydantic import BaseModel, ConfigDict, field_validator
+from pydantic import BaseModel, ConfigDict, ValidationError, field_validator
 
-from custom_errors.custom_errors import InvalidPricingError
+from custom_errors.custom_errors import DoNotNegativeUnitError, InvalidPricingError
 from domain.units_vo import PricingAmount
 
 
@@ -11,22 +11,69 @@ class BuildingPricing(BaseModel):
 
     water_rate: Decimal
     electricity_rate: Decimal
-    cable_price: Decimal = Decimal("0")
-    parking_price: Decimal = Decimal("0")
+    cable_price: Decimal = Decimal(0)
+    parking_price: Decimal = Decimal(0)
 
-    @field_validator("water_rate", "electricity_rate", "cable_price", "parking_price", mode="before")
+    @field_validator("water_rate", mode="before")
     @classmethod
-    def coerce_to_pricing_amount(cls, v: object, info: object) -> Decimal:
-        field_name = getattr(info, "field_name", "")
-        _error_messages = {
-            "water_rate": "ค่าน้ำต่อหน่วยต้องไม่น้อยกว่าศูนย์",
-            "electricity_rate": "ค่าไฟต่อหน่วยต้องไม่น้อยกว่าศูนย์",
-            "cable_price": "ค่าเคเบิลต้องไม่น้อยกว่าศูนย์",
-            "parking_price": "ค่าจอดรถต้องไม่น้อยกว่าศูนย์",
-        }
-        msg = _error_messages.get(field_name, "ค่าต้องไม่น้อยกว่าศูนย์")
+    def validate_water_rate(cls, v: object) -> Decimal:
         try:
             amount = v if isinstance(v, PricingAmount) else PricingAmount(value=v)
             return amount.value
-        except Exception:
-            raise InvalidPricingError(msg)
+        except (
+            InvalidOperation,
+            ValueError,
+            TypeError,
+            DoNotNegativeUnitError,
+            ValidationError,
+            InvalidPricingError,
+        ):
+            raise InvalidPricingError("ค่าน้ำต่อหน่วยต้องไม่น้อยกว่าศูนย์")
+
+    @field_validator("electricity_rate", mode="before")
+    @classmethod
+    def validate_electricity_rate(cls, v: object) -> Decimal:
+        try:
+            amount = v if isinstance(v, PricingAmount) else PricingAmount(value=v)
+            return amount.value
+        except (
+            InvalidOperation,
+            ValueError,
+            TypeError,
+            DoNotNegativeUnitError,
+            ValidationError,
+            InvalidPricingError,
+        ):
+            raise InvalidPricingError("ค่าไฟต่อหน่วยต้องไม่น้อยกว่าศูนย์")
+
+    @field_validator("cable_price", mode="before")
+    @classmethod
+    def validate_cable_price(cls, v: object) -> Decimal:
+        try:
+            amount = v if isinstance(v, PricingAmount) else PricingAmount(value=v)
+            return amount.value
+        except (
+            InvalidOperation,
+            ValueError,
+            TypeError,
+            DoNotNegativeUnitError,
+            ValidationError,
+            InvalidPricingError,
+        ):
+            raise InvalidPricingError("ค่าเคเบิลต้องไม่น้อยกว่าศูนย์")
+
+    @field_validator("parking_price", mode="before")
+    @classmethod
+    def validate_parking_price(cls, v: object) -> Decimal:
+        try:
+            amount = v if isinstance(v, PricingAmount) else PricingAmount(value=v)
+            return amount.value
+        except (
+            InvalidOperation,
+            ValueError,
+            TypeError,
+            DoNotNegativeUnitError,
+            ValidationError,
+            InvalidPricingError,
+        ):
+            raise InvalidPricingError("ค่าจอดรถต้องไม่น้อยกว่าศูนย์")
