@@ -1,4 +1,4 @@
-name: CI
+name: Run Unit Tests & Coverage
 
 on:
   push:
@@ -31,5 +31,5 @@ jobs:
     - name: Run Black Format Check
       run: uv run black --check .
 
-    - name: Run Pytest Test Suite
+    - name: Run Unit Tests & Coverage
       run: uv run pytest
