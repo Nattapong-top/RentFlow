@@ -5,13 +5,15 @@ import pytest
 from custom_errors.custom_errors import DuplicateBillItemError, InvalidBillItemError
 from domain.bill import Bill, BillItem
 from domain.billing_period import BillingPeriod
+from domain.units_vo import PricingAmount
 
 
 def test_create_bill_item_success():
     item = BillItem(name="ค่าเช่าห้อง", amount=2800, description="ค่าเช่าประจำเดือน")
     assert item.name == "ค่าเช่าห้อง"
-    assert item.amount == Decimal(2800)
-    assert isinstance(item.amount, Decimal)
+    assert item.amount == PricingAmount(value=2800)
+    assert isinstance(item.amount, PricingAmount)
+    assert item.amount.value == Decimal(2800)
     assert item.description == "ค่าเช่าประจำเดือน"
 
 

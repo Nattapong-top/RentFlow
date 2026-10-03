@@ -1,16 +1,21 @@
 from decimal import Decimal, InvalidOperation
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator
 
-from custom_errors.custom_errors import DuplicateBillItemError, InvalidBillItemError
+from custom_errors.custom_errors import (
+    DuplicateBillItemError,
+    InvalidBillItemError,
+    InvalidPricingError,
+)
 from domain.billing_period import BillingPeriod
+from domain.units_vo import PricingAmount
 
 
 class BillItem(BaseModel):
     model_config = ConfigDict(frozen=True)
 
     name: str
-    amount: Decimal
+    amount: PricingAmount
     description: str = ""
 
     @field_validator("name")
@@ -22,14 +27,19 @@ class BillItem(BaseModel):
 
     @field_validator("amount", mode="before")
     @classmethod
-    def validate_amount(cls, v: object) -> Decimal:
+    def coerce_to_pricing_amount(cls, v: object) -> PricingAmount:
+        if isinstance(v, PricingAmount):
+            return v
         try:
-            val = Decimal(str(v))
-        except (InvalidOperation, ValueError, TypeError):
+            return PricingAmount(value=v)
+        except (
+            InvalidOperation,
+            ValueError,
+            TypeError,
+            ValidationError,
+            InvalidPricingError,
+        ):
             raise InvalidBillItemError("จำนวนเงินของรายการต้องไม่น้อยกว่าศูนย์")
-        if val < 0:
-            raise InvalidBillItemError("จำนวนเงินของรายการต้องไม่น้อยกว่าศูนย์")
-        return val
 
 
 class Bill(BaseModel):
@@ -43,7 +53,7 @@ class Bill(BaseModel):
 
     @property
     def total(self) -> Decimal:
-        return sum((item.amount for item in self.items), Decimal(0))
+        return sum((item.amount.value for item in self.items), Decimal(0))
 
     def add_item(self, item: BillItem) -> None:
         if any(existing.name == item.name for existing in self.items):
