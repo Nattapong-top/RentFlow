@@ -220,3 +220,6 @@ __marimo__/
 #pycharm
 .idea
 docs/ignore
+
+# Kiro (AI development environment - local only)
+.kiro/

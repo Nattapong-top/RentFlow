@@ -50,15 +50,19 @@ class Bill(BaseModel):
     billing_period: BillingPeriod
     tenant_id: str | None = None
     items: list[BillItem] = Field(default_factory=list)
+    version: int | None = None  # สำหรับ optimistic locking ในชั้น repository
 
     @property
     def total(self) -> Decimal:
+        """คืนค่าจำนวนเงินรวมของบิล."""
         return sum((item.amount.value for item in self.items), Decimal(0))
 
     def add_item(self, item: BillItem) -> None:
+        """เพิ่มรายการลงในบิล (ตรวจสอบการซ้ำกัน)."""
         if any(existing.name == item.name for existing in self.items):
             raise DuplicateBillItemError(f"มีรายการ '{item.name}' อยู่ในบิลแล้ว")
         self.items.append(item)
 
     def clear_items(self) -> None:
+        """ล้างรายการทั้งหมดออกจากบิล."""
         self.items.clear()
