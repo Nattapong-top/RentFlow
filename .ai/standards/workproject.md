@@ -19,37 +19,41 @@
 
 ```text
 main
- └── develop
-      └── feat/<feature-name>
+ └── feat/<feature-name>
 ```
 
 | Branch | วัตถุประสงค์ |
 |---|---|
-| `main` | Production-ready code เท่านั้น |
-| `develop` | Integration branch รวม feature ที่ผ่าน test แล้ว |
-| `feat/xxx` | Feature branch แต่ละชิ้น (micro atomic) |
+| `main` | Production-ready code เท่านั้น (ทุก commit ต้องผ่าน GitHub Actions) |
+| `feat/xxx` | Feature branch แต่ละชิ้น (micro atomic, สร้างจาก main) |
 
 ---
 
 ## 🔄 Workflow ต่อ 1 Feature
 
+ใช้ GitHub PR + Auto-Merge (GitHub Actions จะ merge เองเมื่อ Actions ✅ pass)
+
 ```text
-1.  git checkout -b feat/<name> develop   # สร้าง feature branch
-2.  เขียน test ก่อน (TDD)
-3.  implement ให้ test ผ่าน
-4.  make check                            # lint + format
-5.  make test                             # ทุก test ต้องผ่านก่อน commit
-6.  git add .
-7.  git commit -m "feat: <message>"       # micro atomic commit
-8.  git push -u origin feat/<name>        # push feature branch ขึ้น GitHub
-9.  git checkout develop
-10. git merge feat/<name> --no-ff         # merge กลับ develop
-11. git push origin develop               # push develop ที่ merge แล้ว
-12. git branch -d feat/<name>             # ลบ local branch
-13. git push origin --delete feat/<name>  # ลบ remote branch
+1.  git pull origin main                 # sync latest main
+2.  git checkout -b feat/<name>          # สร้าง feature branch จาก main
+3.  # ... implement + test (TDD)
+4.  make all-tests                       # ต้องผ่านทั้งหมดก่อน commit
+5.  git add <files>
+6.  git commit -m "feat: <message>"      # atomic commit
+7.  git push origin feat/<name>          # push feature branch ขึ้น GitHub
+8.  # สร้าง Pull Request บน GitHub
+9.  # รอ GitHub Actions ✅ pass
+10. # GitHub Auto-Merge จะ merge เมื่อ Actions ✅
+11. git checkout main
+12. git pull origin main                 # sync commit ที่ถูก merge
+13. git branch -d feat/<name>            # ลบ local branch
+14. git push origin --delete feat/<name> # ลบ remote branch
 ```
 
-> **กฎเหล็ก:** `make test` ต้องผ่านทุก test **ก่อน** commit เสมอ
+> **กฎเหล็ก:** 
+> - `make all-tests` ต้องผ่านทั้งหมดก่อน commit เสมอ
+> - PR ต้องผ่าน GitHub Actions ก่อน merge
+> - Auto-Merge ตั้งแล้ว → PR จะ merge เองเมื่อ Actions ✅
 
 ---
 

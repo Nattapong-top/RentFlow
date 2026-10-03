@@ -17,19 +17,21 @@
 
 **สถานการณ์**: จุก commit งาน refactor PricingAmount ทับลงบน branch เดิม (`refactor/non-negative-decimal-vo`) โดยไม่ได้สร้าง `feat/` branch ใหม่ตาม branch strategy ที่กำหนดใน `workproject.md`
 
-**บทเรียน**: ทุกครั้งที่เริ่มงานใหม่ ต้องทำตาม workflow นี้เสมอ:
+**บทเรียน**: ทุกครั้งที่เริ่มงานใหม่ ต้องทำตาม workflow GitHub PR + Auto-Merge นี้เสมอ:
 ```bash
-git checkout develop
-git checkout -b feat/<feature-name> develop
-# ... implement + test ...
-git checkout develop
-git merge feat/<feature-name> --no-ff
-git push origin develop
+git pull origin main
+git checkout -b feat/<feature-name>
+# ... implement + test (make all-tests ผ่าน)
+git push origin feat/<feature-name>
+# สร้าง Pull Request บน GitHub
+# รอ GitHub Actions ✅ pass → Auto-Merge จะ merge เองโดยอัตโนมัติ
+git checkout main
+git pull origin main
 git branch -d feat/<feature-name>
 git push origin --delete feat/<feature-name>
 ```
 
-**ผลลัพธ์**: branch history จะสะอาด ติดตามงานแต่ละชิ้นได้ง่าย และป้องกันการ commit ปนกันระหว่าง feature
+**ผลลัพธ์**: branch history สะอาด PR + GitHub Actions auto-merge ช่วยติดตามและ verify โค้ด ไม่ต้องกด merge button เอง
 
 ---
 
