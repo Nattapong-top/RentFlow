@@ -47,13 +47,13 @@ class BillingCalculator:
     def create_cable_item(self, pricing: BuildingPricing) -> BillItem:
         return BillItem(
             name="ค่าเคเบิล",
-            amount=pricing.cable_price,
+            amount=pricing.cable_price.value,
             description="ค่าบริการเคเบิลทีวี",
         )
 
     def create_parking_item(self, pricing: BuildingPricing) -> BillItem:
         return BillItem(
             name="ค่าที่จอดรถ",
-            amount=pricing.parking_price,
+            amount=pricing.parking_price.value,
             description="ค่าที่จอดรถประจำเดือน",
         )
