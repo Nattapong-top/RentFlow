@@ -199,3 +199,45 @@ def test_method_not_allowed_error_is_returned_in_thai(client: TestClient) -> Non
     assert response.status_code == 405
     assert response.json()["detail"] == "ไม่อนุญาตให้ใช้วิธีการร้องขอนี้"
     assert response.headers["allow"] == "GET"
+
+
+def test_cors_allows_the_configured_frontend_origin(
+    tenant_room: Room,
+    building_pricing: BuildingPricing,
+    bill_repository: BillDAO,
+) -> None:
+    app = create_app(
+        rooms=[tenant_room],
+        pricing=building_pricing,
+        bill_repository=bill_repository,
+        allowed_origins=["http://127.0.0.1:5174"],
+    )
+    response = TestClient(app).options(
+        "/api/v1/rooms",
+        headers={
+            "Origin": "http://127.0.0.1:5174",
+            "Access-Control-Request-Method": "GET",
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.headers["access-control-allow-origin"] == "http://127.0.0.1:5174"
+
+
+def test_cors_does_not_allow_an_unconfigured_origin(
+    tenant_room: Room,
+    building_pricing: BuildingPricing,
+    bill_repository: BillDAO,
+) -> None:
+    app = create_app(
+        rooms=[tenant_room],
+        pricing=building_pricing,
+        bill_repository=bill_repository,
+        allowed_origins=["http://127.0.0.1:5174"],
+    )
+    response = TestClient(app).get(
+        "/api/v1/rooms", headers={"Origin": "https://untrusted.example"}
+    )
+
+    assert response.status_code == 200
+    assert "access-control-allow-origin" not in response.headers

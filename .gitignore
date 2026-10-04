@@ -225,3 +225,4 @@ docs/ignore
 .ai/
 .kiro/
 /AGENTS.md
+.junie/
