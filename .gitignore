@@ -222,4 +222,6 @@ __marimo__/
 docs/ignore
 
 # Kiro (AI development environment - local only)
+.ai/
+AGENTS.md
 .kiro/
