@@ -224,4 +224,4 @@ docs/ignore
 # Kiro (AI development environment - local only)
 .ai/
 .kiro/
-!/AGENTS.md
+/AGENTS.md
