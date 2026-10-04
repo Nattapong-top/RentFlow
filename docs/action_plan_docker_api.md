@@ -1,8 +1,8 @@
 # RentFlow Action Plan: Dockerized Vue + FastAPI REST API
 
-เอกสารนี้เป็น **แผนงานในอนาคต** สำหรับการพัฒนา RentFlow ในรูปแบบ **Decoupled Architecture (Vue 3 Frontend + FastAPI Backend REST API)** และการแพ็กเกจด้วย **Docker Containers** ไม่ใช่คำอธิบายระบบที่มีอยู่แล้วในปัจจุบัน
+เอกสารนี้สรุปสถานะและวิธีใช้งาน RentFlow ซึ่งมี Vue 3 frontend, FastAPI REST API และ Docker Compose แล้ว โดย Nginx ให้บริการหน้าเว็บและ proxy API บน origin เดียว
 
-> **สถานะปัจจุบัน:** โปรเจกต์มีแกน Python สำหรับคำนวณบิลและ `BillDAO` แบบ in-memory เท่านั้น ยังไม่มี FastAPI, Vue frontend, Docker หรือฐานข้อมูลถาวร ทั้งยังไม่มี Repository สำหรับห้องหรือราคา แผนนี้จึงต้องเพิ่มแหล่งข้อมูลฝั่ง backend ที่เชื่อถือได้ก่อนให้ API ใช้ข้อมูลดังกล่าว
+> **สถานะปัจจุบัน:** มี FastAPI endpoints และ Vue frontend แล้ว; runtime composition และรายการห้อง/ราคาสำหรับ Docker เป็นข้อมูล demo เท่านั้น ส่วนบิลจัดเก็บใน `BillDAO` แบบ in-memory และหายเมื่อ backend container ถูกสร้างใหม่ ไม่มีฐานข้อมูลถาวร
 
 ---
 
@@ -13,43 +13,52 @@
 
 ---
 
-## 2. ขั้นตอนการลงมือทำ (Step-by-Step Implementation Plan)
+## 2. สถานะและวิธีใช้งาน
 
-### เฟสที่ 1: พัฒนา FastAPI REST API & Endpoints
-1. **สร้าง FastAPI Application Structure**:
-   - เพิ่ม `presentation/api/` หรือ `main.py` สำหรับรัน FastAPI
-   - สร้าง Pydantic Schemas / DTOs สำหรับ Request/Response (เช่น `BillCreateRequest`, `BillResponse`)
-2. **สร้าง API Endpoints (เป้าหมายที่วางแผนไว้)**:
-   - `GET /api/v1/rooms`: ดึงรายการห้องพัก
-   - `GET /api/v1/bills?period=YYYY-MM`: ดึงรายการบิลตามรอบบิล
-   - `GET /api/v1/bills/{bill_id}`: ดูรายละเอียดบิล
-   - `POST /api/v1/bills`: สร้างบิลใหม่ (เรียก `CreateMonthlyBill`; ต้องออกแบบและเพิ่มแหล่งข้อมูลฝั่ง backend สำหรับห้องและราคา เพราะ Repository ปัจจุบันรองรับเฉพาะบิล)
-3. **Error Handling & CORS**:
-   - จัดการแปลง Domain Exceptions เป็น HTTP Status Codes (`400`, `404`, `409`, `422`, `500`)
-   - ตั้งค่า CORS ให้รองรับเฉพาะ Origin ของ Frontend
+### เฟสที่ 1–2: API และ Frontend
+- FastAPI ให้บริการ endpoints สำหรับ rooms และ bills ใต้ `/api/v1`; Vue เรียกผ่าน `frontend/src/services/billService.ts`
+- จำนวนเงินใน request/response ใช้ string เพื่อหลีกเลี่ยงความคลาดเคลื่อนจาก floating point ใน JavaScript
 
-### เฟสที่ 2: พัฒนา Vue 3 Frontend & Service Layer
-1. **สร้าง Vue 3 + TypeScript Project**:
-   - จัดโครงสร้างโฟลเดอร์ (เช่น `src/views`, `src/components`, `src/services`)
-2. **สร้าง API Service Layer (`src/services/billService.ts`)**:
-   - แยกตรรกะการเรียก HTTP ออกจาก UI Components ใช้ Environment Variable สำหรับระบุ Backend URL
-   - จัดการส่งตัวเลขเงินเป็น `string` เพื่อความแม่นยำ
-3. **พัฒนาหน้าจอ UI**:
-   - หน้าแสดงรายการห้องและสถานะบิล
-   - ฟอร์มกรอกเลขมิเตอร์น้ำ/ไฟ และกดสั่งสร้างบิล
+### เฟสที่ 3: Dockerization & Docker Compose (ดำเนินการแล้ว)
+- `presentation/api/main.py` เป็น runtime composition root สำหรับข้อมูล demo: ห้อง 101 และ demo pricing; ไม่ import จาก `tests/`
+- `Dockerfile` สร้าง backend ด้วย Python 3.13 และติดตั้ง dependencies จาก `uv.lock`; `uvicorn` เป็น runtime dependency
+- `frontend/Dockerfile` build Vue ด้วย Node.js แล้วเสิร์ฟ static files ด้วย Nginx Alpine
+- Nginx proxy `/api/` ไปยัง `backend:8000`; browser ใช้ origin เดียว จึงไม่ต้องเปิด backend port หรือพึ่ง CORS ข้าม origin
+- `docker-compose.yml` เปิด frontend ที่ host port 80 โดยปริยาย (ปรับได้ด้วย `RENTFLOW_WEB_PORT`) และรอ backend health check ก่อนเริ่ม frontend
 
-### เฟสที่ 3: Dockerization & Docker Compose
-1. **Backend Dockerfile**:
-   - เขียน `Dockerfile` สำหรับ FastAPI โดยใช้ Python 3.13 และติดตั้ง dependencies ผ่าน `uv` หรือ `pip`
-2. **Frontend Dockerfile**:
-   - เขียน Multi-stage `Dockerfile` สำหรับ Vue (Build ด้วย Node.js แล้วServe ผ่าน Nginx Alpine)
-3. **Docker Compose (`docker-compose.yml`)**:
-   - เชื่อมโยงบริการ `backend` (พอร์ต 8000) และ `frontend` (พอร์ต 80) เข้าด้วยกัน
-   - ตั้งค่า Network และ Environment Variables
+### เริ่มระบบ
+รันจาก project root โดยต้องติดตั้ง Docker และเปิด Docker Engine แล้ว:
 
-### เฟสที่ 4: การทดสอบและการตรวจสอบ (Testing & Validation)
-1. **API Integration Tests**: ทดสอบ Endpoints ของ FastAPI ด้วย `pytest` และ `TestClient`
-2. **End-to-End Testing**: ทดสอบการทำงานร่วมกันระหว่าง Vue และ FastAPI บน Docker Container จริง
+```powershell
+docker compose config
+docker compose build
+docker compose up -d
+docker compose ps
+```
+
+เปิดหน้าเว็บที่ `http://localhost:80` (หรือ `http://localhost`) และตรวจ API ผ่าน frontend proxy ด้วย PowerShell:
+
+```powershell
+Invoke-RestMethod -Uri http://localhost:80/api/v1/rooms
+```
+
+เปลี่ยน host port ได้ก่อนเริ่ม stack เช่น:
+
+```powershell
+$env:RENTFLOW_WEB_PORT = '8081'
+docker compose up -d --build
+```
+
+จากนั้นเข้า `http://localhost:8081` หากต้องดู log ใช้ `docker compose logs -f` และหยุด/ลบ containers กับ network ด้วย:
+
+```powershell
+docker compose down
+```
+
+### ข้อจำกัดข้อมูลและการตรวจสอบ
+- ห้องและราคาใน `presentation/api/main.py` เป็นข้อมูล demo ไม่ใช่ข้อมูล production
+- บิลเก็บใน `BillDAO` แบบ in-memory เท่านั้น; ข้อมูลจะหายเมื่อ backend process/container restart หรือถูกสร้างใหม่ ไม่มี database หรือ volume สำหรับ persistence
+- ตรวจ backend/frontend และชุดทดสอบด้วย `docker compose build`, `make all-tests` และ `npm test` จาก `frontend/`
 
 ---
 
