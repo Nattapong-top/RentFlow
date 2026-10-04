@@ -3,6 +3,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ConfigDict
 from starlette.exceptions import HTTPException as StarletteHTTPException
+from starlette.middleware.cors import CORSMiddleware
 
 from application.create_monthly_bill import CreateMonthlyBill
 from custom_errors.custom_errors import DomainErrors
@@ -48,9 +49,14 @@ class BillResponse(BaseModel):
 
 
 def create_app(
-    rooms: list[Room], pricing: BuildingPricing, bill_repository: IBillRepository
+    rooms: list[Room],
+    pricing: BuildingPricing,
+    bill_repository: IBillRepository,
+    allowed_origins: list[str] | None = None,
 ) -> FastAPI:
     app = FastAPI()
+    if allowed_origins is not None:
+        configure_cors(app, allowed_origins)
 
     @app.exception_handler(DomainErrors)
     async def handle_domain_error(
@@ -145,6 +151,15 @@ def create_app(
         return to_bill_response(saved_bill)
 
     return app
+
+
+def configure_cors(app: FastAPI, allowed_origins: list[str]) -> None:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=allowed_origins,
+        allow_methods=["GET", "POST"],
+        allow_headers=["Content-Type"],
+    )
 
 
 def to_bill_response(bill: Bill) -> BillResponse:
