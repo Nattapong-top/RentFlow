@@ -4,6 +4,7 @@ from domain.bill import BillItem
 from domain.building_pricing import BuildingPricing
 from domain.meter_unit import MeterReadingUnit
 from domain.room import Room
+from domain.units_vo import PricingAmount
 
 
 class BillingCalculator:
@@ -21,7 +22,9 @@ class BillingCalculator:
         )
         total_unit, total_price = unit_calc.calculate()
         desc = f"{current_unit} - {previous_unit} = {total_unit} หน่วย @ {rate_dec} บาท"
-        return BillItem(name="ค่าน้ำ", amount=total_price, description=desc)
+        return BillItem(
+            name="ค่าน้ำ", amount=PricingAmount(value=total_price), description=desc
+        )
 
     def create_electricity_item(
         self, current_unit: int, previous_unit: int, rate: Decimal | float
@@ -35,25 +38,41 @@ class BillingCalculator:
         )
         total_unit, total_price = unit_calc.calculate()
         desc = f"{current_unit} - {previous_unit} = {total_unit} หน่วย @ {rate_dec} บาท"
-        return BillItem(name="ค่าไฟ", amount=total_price, description=desc)
+        return BillItem(
+            name="ค่าไฟ", amount=PricingAmount(value=total_price), description=desc
+        )
 
     def create_rent_item(self, room: Room) -> BillItem:
         return BillItem(
             name="ค่าเช่าห้อง",
-            amount=room.rent_rate.value,
+            amount=room.rent_rate,
             description="ค่าเช่าห้องประจำเดือน",
         )
 
     def create_cable_item(self, pricing: BuildingPricing) -> BillItem:
         return BillItem(
             name="ค่าเคเบิล",
-            amount=pricing.cable_price.value,
+            amount=pricing.cable_price,
             description="ค่าบริการเคเบิลทีวี",
         )
 
-    def create_parking_item(self, pricing: BuildingPricing) -> BillItem:
+    def create_parking_item(
+        self,
+        pricing: BuildingPricing,
+        motorcycle_count: int | None = None,
+        car_count: int | None = None,
+    ) -> BillItem:
+        # Keep the legacy call shape working until the bill creation flow
+        # supplies vehicle counts from its monthly snapshot.
+        if motorcycle_count is None and car_count is None:
+            total_price = pricing.parking_price.value
+        else:
+            motorcycle_fee = max((motorcycle_count or 0) - 1, 0) * 100
+            car_fee = (car_count or 0) * pricing.parking_price.value
+            total_price = motorcycle_fee + car_fee
+
         return BillItem(
             name="ค่าที่จอดรถ",
-            amount=pricing.parking_price.value,
+            amount=PricingAmount(value=total_price),
             description="ค่าที่จอดรถประจำเดือน",
         )
