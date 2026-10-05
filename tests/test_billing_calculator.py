@@ -62,7 +62,35 @@ def test_calculate_cable_bill_item():
 def test_calculate_parking_bill_item():
     calculator = BillingCalculator()
     pricing = BuildingPricing(water_rate=19, electricity_rate=8, parking_price=500)
-    item = calculator.create_parking_item(pricing)
+    item = calculator.create_parking_item(pricing, motorcycle_count=1, car_count=1)
 
     assert item.name == "ค่าที่จอดรถ"
     assert item.amount == 500
+
+
+@pytest.mark.parametrize(
+    ("motorcycle_count", "car_count", "expected_amount"),
+    [
+        (0, 0, 0),
+        (1, 0, 0),
+        (2, 0, 100),
+        (3, 0, 200),
+        (0, 1, 500),
+        (1, 1, 500),
+        (2, 1, 600),
+        (3, 1, 700),
+    ],
+)
+def test_calculate_parking_bill_by_vehicle_counts(
+    motorcycle_count, car_count, expected_amount
+):
+    calculator = BillingCalculator()
+    pricing = BuildingPricing(water_rate=19, electricity_rate=8, parking_price=500)
+
+    item = calculator.create_parking_item(
+        pricing,
+        motorcycle_count=motorcycle_count,
+        car_count=car_count,
+    )
+
+    assert item.amount == expected_amount
