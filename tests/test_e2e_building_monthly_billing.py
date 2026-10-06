@@ -11,7 +11,7 @@ from domain.building_pricing import BuildingPricing
 from domain.occupant_type import OccupantType
 from domain.room import Room
 from domain.tenant import Tenant
-from domain.units_vo import PricingAmount
+from domain.units_vo import PricingAmount, Unit
 from infrastructure.repositories.bill_dao import BillDAO
 
 
@@ -65,6 +65,7 @@ def sample_rooms(sample_tenants: dict[str, Tenant]) -> dict[str, Room]:
             tenant_id="tenant-1",
             cable_exempt=False,
             has_parking=True,
+            car_count=Unit(value=1),
         ),
         "room-102": Room(
             id="room-102",
@@ -171,6 +172,7 @@ class TestE2EBuildingMonthlyBillingWorkflow:
         assert "ค่าน้ำ" in tenant_items
         assert "ค่าไฟ" in tenant_items
         assert "ค่าเคเบิล" in tenant_items
+        assert "ค่าที่จอดรถ" in tenant_items
 
         # Owner should have only utilities (no rent, cable, parking)
         owner_items = {item.name for item in owner_bill.items}

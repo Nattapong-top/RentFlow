@@ -7,6 +7,7 @@ from domain.billing_period import BillingPeriod
 from domain.building_pricing import BuildingPricing
 from domain.occupant_type import OccupantType
 from domain.room import Room
+from domain.units_vo import Unit
 
 
 @pytest.fixture
@@ -29,6 +30,9 @@ def tenant_room():
         tenant_id="T001",
         cable_exempt=False,
         has_parking=True,
+        motorcycle_count=Unit(value=2),
+        car_count=Unit(value=1),
+        cable_enabled=True,
     )
 
 
@@ -56,12 +60,18 @@ def test_create_monthly_bill_for_tenant_all_items(standard_pricing, tenant_room)
         electricity_meter=(450, 350),  # 100 units * 8 = 800
     )
 
-    # 2800 (Rent) + 494 (Water) + 800 (Elec) + 60 (Cable) + 500 (Parking) = 4654
-    assert bill.total == 4654
+    # 2800 (Rent) + 494 (Water) + 800 (Elec) + 60 (Cable) + 600 (Parking) = 4754
+    assert bill.total == 4754
     assert len(bill.items) == 5
     assert bill.room_id == "R101"
     assert bill.billing_period.value == "2026-09"
     assert bill.tenant_id == "T001"
+    assert bill.occupant_type == OccupantType.TENANT
+    assert bill.motorcycle_count == Unit(value=2)
+    assert bill.car_count == Unit(value=1)
+    assert bill.cable_enabled is True
+    parking_item = next(item for item in bill.items if item.name == "ค่าที่จอดรถ")
+    assert parking_item.amount == 600
 
 
 def test_create_monthly_bill_for_tenant_exemptions(standard_pricing):
@@ -164,4 +174,4 @@ def test_recalculate_existing_bill_preserves_bill_id(standard_pricing, tenant_ro
 
     # BR-17: Recalculate ใช้ Bill ID เดิม ไม่สร้าง ID ใหม่
     assert recalculated_bill.id == "B-ORIGINAL-001"
-    assert recalculated_bill.total == 4654
+    assert recalculated_bill.total == 4754
