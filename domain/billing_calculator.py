@@ -4,7 +4,7 @@ from domain.bill import BillItem
 from domain.building_pricing import BuildingPricing
 from domain.meter_unit import MeterReadingUnit
 from domain.room import Room
-from domain.units_vo import PricingAmount
+from domain.units_vo import PricingAmount, Unit
 
 
 class BillingCalculator:
@@ -59,16 +59,22 @@ class BillingCalculator:
     def create_parking_item(
         self,
         pricing: BuildingPricing,
-        motorcycle_count: int | None = None,
-        car_count: int | None = None,
+        motorcycle_count: Unit | None = None,
+        car_count: Unit | None = None,
     ) -> BillItem:
         # Keep the legacy call shape working until the bill creation flow
         # supplies vehicle counts from its monthly snapshot.
         if motorcycle_count is None and car_count is None:
             total_price = pricing.parking_price.value
         else:
-            motorcycle_fee = max((motorcycle_count or 0) - 1, 0) * 100
-            car_fee = (car_count or 0) * pricing.parking_price.value
+            motorcycle_units = (
+                motorcycle_count.value if motorcycle_count is not None else Decimal(0)
+            )
+            car_units = car_count.value if car_count is not None else Decimal(0)
+            motorcycle_fee = max(motorcycle_units - Decimal(1), Decimal(0)) * Decimal(
+                100
+            )
+            car_fee = car_units * pricing.parking_price.value
             total_price = motorcycle_fee + car_fee
 
         return BillItem(
