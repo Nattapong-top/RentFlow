@@ -17,12 +17,12 @@ class BillingRules:
     def should_charge_cable(self, room: Room) -> bool:
         if room.occupant_type == OccupantType.OWNER:
             return False
-        return not room.cable_exempt
+        return room.cable_enabled and not room.cable_exempt
 
     def should_charge_parking(self, room: Room) -> bool:
         if room.occupant_type == OccupantType.OWNER:
             return False
-        return room.has_parking
+        return room.motorcycle_count.value > 1 or room.car_count.value > 0
 
     def determine_applicable_items(self, room: Room) -> list[str]:
         items: list[str] = []

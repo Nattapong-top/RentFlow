@@ -4,6 +4,7 @@ from fastapi.testclient import TestClient
 from domain.building_pricing import BuildingPricing
 from domain.occupant_type import OccupantType
 from domain.room import Room
+from domain.units_vo import Unit
 from infrastructure.repositories.bill_dao import BillDAO
 from presentation.api.app import create_app
 
@@ -18,6 +19,7 @@ def tenant_room() -> Room:
         tenant_id="tenant-101",
         cable_exempt=False,
         has_parking=True,
+        car_count=Unit(value=1),
     )
 
 

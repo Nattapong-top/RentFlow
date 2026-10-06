@@ -56,6 +56,11 @@ class CreateMonthlyBill:
                 tenant_id=room.tenant_id,
             )
 
+        bill.occupant_type = room.occupant_type
+        bill.motorcycle_count = room.motorcycle_count
+        bill.car_count = room.car_count
+        bill.cable_enabled = room.cable_enabled
+
         # Step 6 & 7: Determine Bill Items & Calculate
         if self.rules.should_charge_rent(room):
             rent_item = self.calculator.create_rent_item(room)
@@ -84,7 +89,11 @@ class CreateMonthlyBill:
             bill.add_item(cable_item)
 
         if self.rules.should_charge_parking(room):
-            parking_item = self.calculator.create_parking_item(pricing)
+            parking_item = self.calculator.create_parking_item(
+                pricing,
+                motorcycle_count=bill.motorcycle_count,
+                car_count=bill.car_count,
+            )
             bill.add_item(parking_item)
 
         return bill
