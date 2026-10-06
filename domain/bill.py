@@ -8,7 +8,8 @@ from custom_errors.custom_errors import (
     InvalidPricingError,
 )
 from domain.billing_period import BillingPeriod
-from domain.units_vo import PricingAmount
+from domain.occupant_type import OccupantType
+from domain.units_vo import PricingAmount, Unit
 
 
 class BillItem(BaseModel):
@@ -49,6 +50,10 @@ class Bill(BaseModel):
     room_id: str
     billing_period: BillingPeriod
     tenant_id: str | None = None
+    occupant_type: OccupantType = OccupantType.TENANT
+    motorcycle_count: Unit = Unit(value=Decimal(0))
+    car_count: Unit = Unit(value=Decimal(0))
+    cable_enabled: bool = True
     items: list[BillItem] = Field(default_factory=list)
     version: int | None = None  # สำหรับ optimistic locking ในชั้น repository
 

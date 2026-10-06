@@ -5,7 +5,8 @@ import pytest
 from custom_errors.custom_errors import DuplicateBillItemError, InvalidBillItemError
 from domain.bill import Bill, BillItem
 from domain.billing_period import BillingPeriod
-from domain.units_vo import PricingAmount
+from domain.occupant_type import OccupantType
+from domain.units_vo import PricingAmount, Unit
 
 
 def test_create_bill_item_success():
@@ -49,6 +50,36 @@ def test_create_bill_and_add_items():
     assert bill.total == Decimal(4330)
     assert isinstance(bill.total, Decimal)
     assert len(bill.items) == 5
+
+
+def test_bill_stores_billing_snapshot_with_defaults():
+    bill = Bill(
+        id="B002",
+        room_id="R002",
+        billing_period=BillingPeriod(value="2026-09"),
+    )
+
+    assert bill.occupant_type == OccupantType.TENANT
+    assert bill.motorcycle_count == Unit(value=0)
+    assert bill.car_count == Unit(value=0)
+    assert bill.cable_enabled is True
+
+
+def test_bill_stores_billing_snapshot_values():
+    bill = Bill(
+        id="B003",
+        room_id="R003",
+        billing_period=BillingPeriod(value="2026-09"),
+        occupant_type=OccupantType.OWNER,
+        motorcycle_count=Unit(value=2),
+        car_count=Unit(value=1),
+        cable_enabled=False,
+    )
+
+    assert bill.occupant_type == OccupantType.OWNER
+    assert bill.motorcycle_count == Unit(value=2)
+    assert bill.car_count == Unit(value=1)
+    assert bill.cable_enabled is False
 
 
 def test_add_duplicate_item_raises_error():

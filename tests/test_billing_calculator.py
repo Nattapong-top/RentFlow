@@ -4,6 +4,7 @@ from custom_errors.custom_errors import DecreasingUnitError
 from domain.billing_calculator import BillingCalculator
 from domain.building_pricing import BuildingPricing
 from domain.room import Room
+from domain.units_vo import Unit
 
 
 def test_calculate_water_bill_item():
@@ -62,7 +63,9 @@ def test_calculate_cable_bill_item():
 def test_calculate_parking_bill_item():
     calculator = BillingCalculator()
     pricing = BuildingPricing(water_rate=19, electricity_rate=8, parking_price=500)
-    item = calculator.create_parking_item(pricing, motorcycle_count=1, car_count=1)
+    item = calculator.create_parking_item(
+        pricing, motorcycle_count=Unit(value=1), car_count=Unit(value=1)
+    )
 
     assert item.name == "ค่าที่จอดรถ"
     assert item.amount == 500
@@ -71,14 +74,14 @@ def test_calculate_parking_bill_item():
 @pytest.mark.parametrize(
     ("motorcycle_count", "car_count", "expected_amount"),
     [
-        (0, 0, 0),
-        (1, 0, 0),
-        (2, 0, 100),
-        (3, 0, 200),
-        (0, 1, 500),
-        (1, 1, 500),
-        (2, 1, 600),
-        (3, 1, 700),
+        (Unit(value=0), Unit(value=0), 0),
+        (Unit(value=1), Unit(value=0), 0),
+        (Unit(value=2), Unit(value=0), 100),
+        (Unit(value=3), Unit(value=0), 200),
+        (Unit(value=0), Unit(value=1), 500),
+        (Unit(value=1), Unit(value=1), 500),
+        (Unit(value=2), Unit(value=1), 600),
+        (Unit(value=3), Unit(value=1), 700),
     ],
 )
 def test_calculate_parking_bill_by_vehicle_counts(

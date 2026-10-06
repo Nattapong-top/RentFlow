@@ -5,7 +5,7 @@ import pytest
 from custom_errors.custom_errors import InvalidRentRateError, InvalidRoomError
 from domain.occupant_type import OccupantType
 from domain.room import Room
-from domain.units_vo import PricingAmount
+from domain.units_vo import PricingAmount, Unit
 
 
 def test_create_room_success():
@@ -17,6 +17,9 @@ def test_create_room_success():
         tenant_id="T001",
         cable_exempt=False,
         has_parking=True,
+        motorcycle_count=Unit(value=2),
+        car_count=Unit(value=1),
+        cable_enabled=True,
     )
     assert room.id == "R001"
     assert room.room_number == "101"
@@ -27,6 +30,9 @@ def test_create_room_success():
     assert room.tenant_id == "T001"
     assert room.cable_exempt is False
     assert room.has_parking is True
+    assert room.motorcycle_count == Unit(value=2)
+    assert room.car_count == Unit(value=1)
+    assert room.cable_enabled is True
 
 
 def test_create_room_defaults():
@@ -35,6 +41,9 @@ def test_create_room_defaults():
     assert room.tenant_id is None
     assert room.cable_exempt is False
     assert room.has_parking is False
+    assert room.motorcycle_count == Unit(value=0)
+    assert room.car_count == Unit(value=0)
+    assert room.cable_enabled is True
 
 
 def test_create_room_with_owner_occupant():
